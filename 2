@@ -1,0 +1,51 @@
+import pytest
+from orm import batches
+from model import OrderLine
+from sqlalchemy import text
+
+
+
+def test_orderline_mapper_can_load_lines(session):
+    insert_sql = text("""
+        INSERT INTO order_lines (orderid, sku, qty)
+        VALUES (:value1, :value2, :value3),
+               (:value4, :value5, :value6),
+               (:value7, :value8, :value9)
+    """)
+    params = {
+        'value1': 'order1',
+        'value2': 'RED-CHAIR',
+        'value3': '12',
+        'value4': 'order1',
+        'value5': 'RED-TABLE',
+        'value6': '13',
+        'value7': 'order2',
+        'value8': 'BLUE-LIPSTICK',
+        'value9': '14',
+    }
+    session.execute( insert_sql, params)
+    expected = [
+        OrderLine("order1", "RED-CHAIR", 12),
+        OrderLine("order1", "RED-TABLE", 13),
+        OrderLine("order2", "BLUE-LIPSTICK", 14)]
+
+    assert session.query(OrderLine).all() == expected
+
+
+def test_orderline_mapper_can_save_lines(session):
+    line = OrderLine('order1', 'Decorative-Widget', 12)
+    session.add(line)
+    session.commit()
+
+    rows = list(session.execute(text('Select orderid, sku, qty from order_lines')))
+    assert rows == [('order1', 'Decorative-Widget', 12)]
+
+
+def test_retreiving_batches(session):
+    session.execute(text('''INSERT INTO batches (refefence, sku, _purchased_quantity)
+                VALUES (:value1, :value2, :value3),
+                       (:value4, :value5, :value6) '''
+
+
+
+

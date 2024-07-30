@@ -5,12 +5,14 @@ from typing import Optional, Set, List
 class OutOfStock(Exception):
     pass
 
-@dataclass(frozen=True)
+@dataclass(unsafe_hash=True)
 class OrderLine:
     orderid: str
     sku: str
     qty: int
 
+    # def __repr__(self) -> str:
+    #     return f'OrderLine {self.orderid}, {self.sku}, {self.qty} '
 
 class Batch:
     def __init__(self, ref: str, sku: str, qty: int, eta: Optional[date]) -> None:
